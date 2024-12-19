@@ -1,6 +1,9 @@
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
+import requests
+
+ALPHA_VANTAGE_API_KEY = 'RBO630UAW5YGHXRE'
 
 def fetch_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
     """
@@ -96,6 +99,65 @@ def fetch_multiple_tickers_data(tickers: list, start_date: str, end_date: str) -
     print(f"Fetched historical data for {len(tickers)} tickers.")
     return results
 
+
+def fetch_financials(ticker: str) -> dict:
+    """
+    Fetch financial data like income statement, balance sheet, and cash flow from Alpha Vantage API.
+
+    Args:
+        ticker (str): Stock ticker symbol.
+
+    Returns:
+        dict: Dictionary containing financial data (income statement, balance sheet, etc.).
+    """
+    url = f"https://www.alphavantage.co/query"
+    params = {
+        'function': 'INCOME_STATEMENT',
+        'symbol': ticker,
+        'apikey': ALPHA_VANTAGE_API_KEY
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+        if 'error' in data:
+            raise ValueError(f"Error fetching financial data for {ticker}: {data['error']}")
+        print(f"Fetched financial data for {ticker}")
+        return data
+    except Exception as e:
+        print(f"Error fetching financials: {e}")
+        return {}
+
+
+def fetch_forex_data(from_currency: str, to_currency: str) -> dict:
+    """
+    Fetch foreign exchange (forex) data from Alpha Vantage API.
+
+    Args:
+        from_currency (str): Currency to convert from (e.g., 'USD').
+        to_currency (str): Currency to convert to (e.g., 'EUR').
+
+    Returns:
+        dict: Dictionary containing forex data, including the exchange rate.
+    """
+    url = f"https://www.alphavantage.co/query"
+    params = {
+        'function': 'CURRENCY_EXCHANGE_RATE',
+        'from_currency': from_currency,
+        'to_currency': to_currency,
+        'apikey': ALPHA_VANTAGE_API_KEY
+    }
+
+    try:
+        response = requests.get(url, params=params)
+        data = response.json()
+        if 'error' in data:
+            raise ValueError(f"Error fetching forex data for {from_currency} to {to_currency}: {data['error']}")
+        print(f"Fetched forex data: {from_currency} to {to_currency}")
+        return data
+    except Exception as e:
+        print(f"Error fetching forex data: {e}")
+        return {}
 
 if __name__ == "__main__":
     # Example usage

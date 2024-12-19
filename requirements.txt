@@ -4,3 +4,5 @@ matplotlib
 yfinance
 plotly
 scipy
+datetime
+requests
