@@ -150,6 +150,14 @@ def calculate_stochastic_oscillator(data: pd.DataFrame, window: int = 14, signal
 
     return pd.DataFrame({'%K': stoch_k, '%D': stoch_d})
 
+# Calculate Volume-Price Trend (VPT)
+def calculate_vpt(data: pd.DataFrame):
+    vpt = [0]  # Initialize VPT with the first data point
+    for i in range(1, len(data)):
+        price_change = (data['Close'][i] - data['Close'][i-1]) / data['Close'][i-1]
+        volume_change = data['Volume'][i]  # Use the volume for the day
+        vpt.append(vpt[-1] + price_change * volume_change)
+    return vpt
 
 if __name__ == "__main__":
     # Example Usage with Sample Data
