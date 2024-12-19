@@ -1,7 +1,7 @@
 import plotly.graph_objs as go
+import matplotlib.pyplot as plt
 import yfinance as yf
 from indicators import calculate_sma, calculate_ema, calculate_macd, calculate_bollinger_bands, calculate_rsi
-from data_fetching import fetch_sector_data
 
 
 # Function to plot historical stock price with SMA and EMA overlays
@@ -221,35 +221,4 @@ def plot_vpt(ticker, start_date, end_date):
         yaxis_title='Price / VPT',
         template='plotly_dark'
     )
-    fig.show()
-
-
-# Function to plot Sector/Industry Comparison
-def plot_sector_comparison(tickers, start_date, end_date):
-    # Fetch sector data
-    data = fetch_sector_data(tickers, start_date, end_date)
-
-    # Normalize the data to the first price (percentage change)
-    normalized_data = (data / data.iloc[0] - 1) * 100  # Normalize to first day
-
-    # Create the plot
-    fig = go.Figure()
-
-    # Add traces for each sector
-    for ticker in tickers:
-        fig.add_trace(go.Scatter(
-            x=normalized_data.index,
-            y=normalized_data[ticker],
-            mode='lines',
-            name=ticker
-        ))
-
-    # Customize layout
-    fig.update_layout(
-        title="Sector/Industry Comparison",
-        xaxis_title="Date",
-        yaxis_title="Percentage Change (%)",
-        template="plotly_dark"
-    )
-
     fig.show()

@@ -99,14 +99,6 @@ def fetch_multiple_tickers_data(tickers: list, start_date: str, end_date: str) -
     print(f"Fetched historical data for {len(tickers)} tickers.")
     return results
 
-# Function to fetch historical data for multiple tickers
-def fetch_sector_data(tickers, start_date, end_date):
-    data = {}
-    for ticker in tickers:
-        sector_data = yf.download(ticker, start=start_date, end=end_date)['Adj Close']
-        data[ticker] = sector_data
-    return pd.DataFrame(data)
-
 def fetch_financials(ticker: str) -> dict:
     """
     Fetch financial data like income statement, balance sheet, and cash flow from Alpha Vantage API.
