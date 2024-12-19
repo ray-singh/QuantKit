@@ -1,180 +1,133 @@
-import yfinance as yf
 import pandas as pd
-from datetime import datetime
-import requests
+import numpy as np
 
-ALPHA_VANTAGE_API_KEY = 'RBO630UAW5YGHXRE'
 
-def fetch_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
+# Calculate Simple Moving Average (SMA)
+def calculate_sma(data: pd.DataFrame, window: int) -> pd.Series:
     """
-    Fetch historical OHLCV data for a given stock ticker.
+    Calculate the Simple Moving Average (SMA).
 
     Args:
-        ticker (str): Stock ticker symbol (e.g., 'AAPL', 'GOOG').
-        start_date (str): Start date in 'YYYY-MM-DD' format.
-        end_date (str): End date in 'YYYY-MM-DD' format.
+        data (pd.DataFrame): Stock data with a 'Close' column.
+        window (int): The period over which to calculate the average.
 
     Returns:
-        pd.DataFrame: DataFrame containing Date, Open, High, Low, Close, Volume data.
+        pd.Series: A series of SMA values.
     """
-    try:
-        stock = yf.Ticker(ticker)
-        data = stock.history(start=start_date, end=end_date)
-        if data.empty:
-            raise ValueError(f"No data found for {ticker} between {start_date} and {end_date}.")
-        print(f"Fetched historical data for {ticker}")
-        return data
-    except Exception as e:
-        print(f"Error fetching historical data: {e}")
-        return pd.DataFrame()
+    return data['Close'].rolling(window=window).mean()
 
 
-def fetch_company_info(ticker: str) -> dict:
+# Calculate Exponential Moving Average (EMA)
+def calculate_ema(data: pd.DataFrame, window: int) -> pd.Series:
     """
-    Fetch company information, such as sector, industry, and company description.
+    Calculate the Exponential Moving Average (EMA).
 
     Args:
-        ticker (str): Stock ticker symbol.
+        data (pd.DataFrame): Stock data with a 'Close' column.
+        window (int): The period over which to calculate the EMA.
 
     Returns:
-        dict: Dictionary containing key company information.
+        pd.Series: A series of EMA values.
     """
-    try:
-        stock = yf.Ticker(ticker)
-        info = stock.info
-        company_info = {
-            "Name": info.get("longName", "N/A"),
-            "Sector": info.get("sector", "N/A"),
-            "Industry": info.get("industry", "N/A"),
-            "Country": info.get("country", "N/A"),
-            "Website": info.get("website", "N/A"),
-            "Description": info.get("longBusinessSummary", "N/A")
-        }
-        print(f"Fetched company info for {ticker}")
-        return company_info
-    except Exception as e:
-        print(f"Error fetching company info: {e}")
-        return {}
+    return data['Close'].ewm(span=window, adjust=False).mean()
 
 
-def fetch_live_price(ticker: str) -> float:
+# Calculate Relative Strength Index (RSI)
+def calculate_rsi(data: pd.DataFrame, window: int) -> pd.Series:
     """
-    Fetch the real-time price of a given stock ticker.
+    Calculate the Relative Strength Index (RSI).
 
     Args:
-        ticker (str): Stock ticker symbol.
+        data (pd.DataFrame): Stock data with a 'Close' column.
+        window (int): The period over which to calculate the RSI.
 
     Returns:
-        float: Current stock price.
+        pd.Series: A series of RSI values.
     """
-    try:
-        stock = yf.Ticker(ticker)
-        live_data = stock.history(period="1d")
-        if live_data.empty:
-            raise ValueError(f"No real-time price data available for {ticker}.")
-        price = live_data['Close'][-1]
-        print(f"Fetched live price for {ticker}: ${price:.2f}")
-        return price
-    except Exception as e:
-        print(f"Error fetching live price: {e}")
-        return 0.0
+    delta = data['Close'].diff()
+    gain = delta.where(delta > 0, 0)
+    loss = -delta.where(delta < 0, 0)
+
+    avg_gain = gain.rolling(window=window).mean()
+    avg_loss = loss.rolling(window=window).mean()
+
+    rs = avg_gain / avg_loss
+    rsi = 100 - (100 / (1 + rs))
+
+    return rsi
 
 
-def fetch_multiple_tickers_data(tickers: list, start_date: str, end_date: str) -> dict:
+# Calculate Moving Average Convergence Divergence (MACD)
+def calculate_macd(data: pd.DataFrame, short_window: int = 12, long_window: int = 26,
+                   signal_window: int = 9) -> pd.DataFrame:
     """
-    Fetch historical data for multiple stock tickers.
+    Calculate the Moving Average Convergence Divergence (MACD) and its Signal line.
 
     Args:
-        tickers (list): List of stock ticker symbols.
-        start_date (str): Start date in 'YYYY-MM-DD' format.
-        end_date (str): End date in 'YYYY-MM-DD' format.
+        data (pd.DataFrame): Stock data with a 'Close' column.
+        short_window (int): The period for the short-term EMA.
+        long_window (int): The period for the long-term EMA.
+        signal_window (int): The period for the Signal line (EMA of MACD).
 
     Returns:
-        dict: Dictionary with ticker symbols as keys and DataFrames as values.
+        pd.DataFrame: A DataFrame containing MACD and Signal line.
     """
-    results = {}
-    for ticker in tickers:
-        data = fetch_data(ticker, start_date, end_date)
-        results[ticker] = data
-    print(f"Fetched historical data for {len(tickers)} tickers.")
-    return results
+    short_ema = calculate_ema(data, short_window)
+    long_ema = calculate_ema(data, long_window)
+
+    macd = short_ema - long_ema
+    signal_line = calculate_ema(pd.DataFrame(macd), signal_window)
+
+    return pd.DataFrame({'MACD': macd, 'Signal Line': signal_line})
 
 
-def fetch_financials(ticker: str) -> dict:
+# Calculate Bollinger Bands
+def calculate_bollinger_bands(data: pd.DataFrame, window: int = 20, num_std_dev: int = 2) -> pd.DataFrame:
     """
-    Fetch financial data like income statement, balance sheet, and cash flow from Alpha Vantage API.
+    Calculate Bollinger Bands.
 
     Args:
-        ticker (str): Stock ticker symbol.
+        data (pd.DataFrame): Stock data with a 'Close' column.
+        window (int): The period over which to calculate the moving average.
+        num_std_dev (int): The number of standard deviations for the upper and lower bands.
 
     Returns:
-        dict: Dictionary containing financial data (income statement, balance sheet, etc.).
+        pd.DataFrame: A DataFrame containing the Upper, Middle (SMA), and Lower bands.
     """
-    url = f"https://www.alphavantage.co/query"
-    params = {
-        'function': 'INCOME_STATEMENT',
-        'symbol': ticker,
-        'apikey': ALPHA_VANTAGE_API_KEY
-    }
+    sma = calculate_sma(data, window)
+    rolling_std = data['Close'].rolling(window=window).std()
 
-    try:
-        response = requests.get(url, params=params)
-        data = response.json()
-        if 'error' in data:
-            raise ValueError(f"Error fetching financial data for {ticker}: {data['error']}")
-        print(f"Fetched financial data for {ticker}")
-        return data
-    except Exception as e:
-        print(f"Error fetching financials: {e}")
-        return {}
+    upper_band = sma + (rolling_std * num_std_dev)
+    lower_band = sma - (rolling_std * num_std_dev)
 
+    return pd.DataFrame({'Upper Band': upper_band, 'Middle Band (SMA)': sma, 'Lower Band': lower_band})
 
-def fetch_forex_data(from_currency: str, to_currency: str) -> dict:
-    """
-    Fetch foreign exchange (forex) data from Alpha Vantage API.
-
-    Args:
-        from_currency (str): Currency to convert from (e.g., 'USD').
-        to_currency (str): Currency to convert to (e.g., 'EUR').
-
-    Returns:
-        dict: Dictionary containing forex data, including the exchange rate.
-    """
-    url = f"https://www.alphavantage.co/query"
-    params = {
-        'function': 'CURRENCY_EXCHANGE_RATE',
-        'from_currency': from_currency,
-        'to_currency': to_currency,
-        'apikey': ALPHA_VANTAGE_API_KEY
-    }
-
-    try:
-        response = requests.get(url, params=params)
-        data = response.json()
-        if 'error' in data:
-            raise ValueError(f"Error fetching forex data for {from_currency} to {to_currency}: {data['error']}")
-        print(f"Fetched forex data: {from_currency} to {to_currency}")
-        return data
-    except Exception as e:
-        print(f"Error fetching forex data: {e}")
-        return {}
 
 if __name__ == "__main__":
-    # Example usage
-    print("----- Fetch Historical Data -----")
-    historical_data = fetch_data("AAPL", "2024-01-01", "2024-06-01")
-    print(historical_data.head())
+    # Example Usage with Sample Data
+    import yfinance as yf
 
-    print("\n----- Fetch Company Info -----")
-    company_info = fetch_company_info("AAPL")
-    print(company_info)
+    # Fetch historical data for a stock (AAPL)
+    stock = yf.Ticker("AAPL")
+    data = stock.history(period="1y")
 
-    print("\n----- Fetch Live Price -----")
-    live_price = fetch_live_price("AAPL")
-    print(f"Live Price: ${live_price:.2f}")
+    # Calculate Technical Indicators
+    print("\n----- Simple Moving Average (SMA) -----")
+    sma = calculate_sma(data, window=20)
+    print(sma.tail())
 
-    print("\n----- Fetch Multiple Tickers Data -----")
-    multiple_data = fetch_multiple_tickers_data(["AAPL", "MSFT"], "2024-01-01", "2024-06-01")
-    for ticker, data in multiple_data.items():
-        print(f"{ticker} Data:")
-        print(data.head())
+    print("\n----- Exponential Moving Average (EMA) -----")
+    ema = calculate_ema(data, window=20)
+    print(ema.tail())
+
+    print("\n----- Relative Strength Index (RSI) -----")
+    rsi = calculate_rsi(data, window=14)
+    print(rsi.tail())
+
+    print("\n----- Moving Average Convergence Divergence (MACD) -----")
+    macd = calculate_macd(data)
+    print(macd.tail())
+
+    print("\n----- Bollinger Bands -----")
+    bollinger_bands = calculate_bollinger_bands(data)
+    print(bollinger_bands.tail())
