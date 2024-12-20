@@ -2,19 +2,44 @@
 import numpy as np
 import pandas as pd
 from Portfolio import Portfolio
+from data_fetching import fetch_data, fetch_company_info, fetch_live_price
 
 
-def calculate_daily_returns(portfolio: Portfolio) -> pd.DataFrame:
+def recommend_stocks_to_sell(self, pe_ratio_threshold: float, div_yield_threshold: float) -> List[Dict]:
     """
-    Compute daily returns for the portfolio based on individual stock data.
+    Identify underperforming stocks in the portfolio that should be sold off.
 
     Args:
-        portfolio (Portfolio): An instance of the Portfolio class.
+        pe_ratio_threshold (float): Maximum acceptable P/E ratio.
+        div_yield_threshold (float): Minimum acceptable dividend yield.
 
     Returns:
-        pd.DataFrame: DataFrame containing daily returns for each stock in the portfolio.
+        List[Dict]: List of dictionaries containing underperforming stock information.
     """
-    return portfolio.returns
+    underperforming_stocks = []
+
+    for ticker in self.stock_symbols:
+        info = fetch_company_info(ticker)
+        if not info:
+            continue  # Skip if unable to fetch info
+
+        pe_ratio = info.get("trailingPE", None)
+        div_yield = info.get("dividendYield", None)
+
+        # Normalize dividend yield percentage if available
+        div_yield = div_yield * 100 if div_yield is not None else None
+
+        # Check if the stock is underperforming
+        if (pe_ratio and pe_ratio > pe_ratio_threshold) or (div_yield and div_yield < div_yield_threshold):
+            underperforming_stocks.append({
+                "Ticker": ticker,
+                "Name": info.get("Name", "N/A"),
+                "P/E Ratio": pe_ratio,
+                "Dividend Yield (%)": div_yield,
+                "Sector": info.get("Sector", "N/A"),
+                "Industry": info.get("Industry", "N/A")
+            })
+    return underperforming_stocks
 
 def optimize_portfolio(data, method='sharpe'):
     """
@@ -61,19 +86,6 @@ def calculate_annualized_return(portfolio: Portfolio) -> float:
     return annualized_return
 
 
-def calculate_volatility(portfolio: Portfolio) -> float:
-    """
-    Calculate the volatility (standard deviation) of the portfolio.
-
-    Args:
-        portfolio (Portfolio): An instance of the Portfolio class.
-
-    Returns:
-        float: Annualized volatility of the portfolio.
-    """
-    return portfolio.calculate_volatility()
-
-
 def sharpe_ratio(portfolio: Portfolio, risk_free_rate=0.01) -> float:
     """
     Calculate the Sharpe Ratio for the portfolio, which measures risk-adjusted return.
@@ -115,16 +127,3 @@ def sortino_ratio(portfolio: Portfolio, risk_free_rate=0.01) -> float:
     # Sortino Ratio formula: (mean return - risk-free rate) / downside deviation
     sortino_ratio = (annualized_return - risk_free_rate) / downside_deviation
     return sortino_ratio
-
-
-def calculate_portfolio_return(portfolio: Portfolio) -> float:
-    """
-    Calculate the total return of the portfolio based on its weights and stock returns.
-
-    Args:
-        portfolio (Portfolio): An instance of the Portfolio class.
-
-    Returns:
-        float: Total return of the portfolio.
-    """
-    return portfolio.calculate_portfolio_return()
