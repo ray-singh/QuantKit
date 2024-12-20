@@ -167,6 +167,47 @@ def fetch_forex_data(from_currency: str, to_currency: str) -> dict:
         print(f"Error fetching forex data: {e}")
         return {}
 
+def get_stock_values(ticker: str, start_date: str, end_date: str, source: str = "yfinance") -> pd.Series:
+    """
+    Fetch the time series of stock closing prices.
+
+    Args:
+        ticker (str): Stock ticker symbol.
+        start_date (str): Start date in 'YYYY-MM-DD' format.
+        end_date (str): End date in 'YYYY-MM-DD' format.
+        source (str): Data source ('yfinance' or 'alpha_vantage', default is 'yfinance').
+
+    Returns:
+        pd.Series: Time series of stock closing prices with dates as the index.
+    """
+    # Fetch data using your existing fetch_data function
+    stock_data = fetch_data(ticker, start_date, end_date, source)
+
+    # Return only the closing prices as a Series
+    if "Close" in stock_data.columns:
+        return stock_data["Close"]
+    else:
+        raise KeyError("'Close' column not found in the stock data.")
+
+
+def get_daily_returns(stock_values: pd.Series) -> pd.Series:
+    """
+    Calculate the daily returns from a series of stock values.
+
+    Args:
+        stock_values (pd.Series): Time series of stock prices with dates as the index.
+
+    Returns:
+        pd.Series: Time series of daily returns.
+    """
+    if not isinstance(stock_values, pd.Series):
+        raise ValueError("Input 'stock_values' must be a pandas Series.")
+
+    # Calculate daily returns using percentage change
+    daily_returns = stock_values.pct_change().dropna()
+
+    return daily_returns
+
 if __name__ == "__main__":
     # Example usage
     print("----- Fetch Historical Data -----")
