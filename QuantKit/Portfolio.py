@@ -5,7 +5,8 @@ from data_fetching import fetch_data, fetch_company_info, fetch_live_price
 from typing import List, Dict
 import seaborn as sns
 import matplotlib.pyplot as plt
-
+#import matplotlib
+#matplotlib.use('TkAgg')
 
 class Portfolio:
     def __init__(self, stock_symbols=None, start_date='2020-01-01', end_date='2024-01-01', weights=None):
@@ -130,63 +131,78 @@ class Portfolio:
 
     def plot_portfolio_performance(self):
         """
-        Plots the cumulative returns of the portfolio over time.
+        Plot the cumulative returns of the portfolio.
+        """
+        weighted_returns = self.returns.dot(list(self.weights.values()))
+        cumulative_returns = (1 + weighted_returns).cumprod()
+        plt.figure(figsize=(10, 6))
+        plt.plot(cumulative_returns.index, cumulative_returns, label='Portfolio Cumulative Returns', color='blue')
+        plt.title('Portfolio Cumulative Performance')
+        plt.xlabel('Date')
+        plt.ylabel('Cumulative Returns')
+        plt.legend()
+        plt.grid()
+        plt.show()
+
+    def plot_stock_allocation(self):
+        """
+        Plot a pie chart showing stock allocation in the portfolio.
+        """
+        plt.figure(figsize=(8, 8))
+        plt.pie(self.weights.values(), labels=self.weights.keys(), autopct='%1.1f%%', startangle=140,
+                colors=sns.color_palette('pastel'))
+        plt.title("Portfolio Stock Allocation")
+        plt.show()
+
+    def plot_individual_stock_performance(self):
+        """
+        Plot the cumulative returns of individual stocks in the portfolio.
         """
         plt.figure(figsize=(10, 6))
-        cumulative_returns = (1 + self.portfolio_data.pct_change()).cumprod()
-        plt.plot(cumulative_returns.index, cumulative_returns.sum(axis=1), label='Portfolio Cumulative Returns',
-                 color='blue')
-        plt.title("Portfolio Performance Over Time")
+        for stock, data in self.stocks.items():
+            stock_returns = (1 + data['Close'].pct_change()).cumprod()
+            plt.plot(stock_returns.index, stock_returns, label=stock)
+        plt.title("Individual Stock Performance")
         plt.xlabel("Date")
         plt.ylabel("Cumulative Returns")
         plt.legend()
         plt.grid()
         plt.show()
 
-    def plot_stock_allocation(self, weights: List[float]):
+    def plot_risk_vs_return(self):
         """
-        Plots a pie chart showing stock allocation in the portfolio.
-
-        Args:
-            weights (List[float]): List of weights for each stock in the portfolio.
+        Plot risk (volatility) vs return for all stocks in the portfolio.
         """
-        plt.figure(figsize=(8, 8))
-        labels = self.tickers
-        plt.pie(weights, labels=labels, autopct='%1.1f%%', startangle=140, colors=sns.color_palette('pastel'))
-        plt.title("Portfolio Stock Allocation")
-        plt.show()
-
-    def compare_portfolio_returns(self, portfolio_returns: Dict[str, float]):
-        """
-        Plots a bar chart comparing the returns of multiple portfolios.
-
-        Args:
-            portfolio_returns (Dict[str, float]): Dictionary of portfolio names and their annualized returns.
-        """
+        returns = self.returns.mean() * 252  # Annualized returns
+        volatilities = self.returns.std() * np.sqrt(252)  # Annualized volatilities
         plt.figure(figsize=(10, 6))
-        names = list(portfolio_returns.keys())
-        returns = list(portfolio_returns.values())
-        sns.barplot(x=names, y=returns, palette="viridis")
-        plt.title("Comparative Portfolio Returns")
-        plt.ylabel("Annualized Return")
-        plt.xlabel("Portfolio")
-        plt.show()
-
-    def plot_risk_vs_return(self, portfolio_stats: Dict[str, tuple]):
-        """
-        Plots a scatter plot comparing risk (volatility) and return across portfolios or stocks.
-
-        Args:
-            portfolio_stats (Dict[str, tuple]): Dictionary of portfolio/stock names with (return, risk) values.
-        """
-        plt.figure(figsize=(10, 6))
-        for name, stats in portfolio_stats.items():
-            plt.scatter(stats[1], stats[0], label=name, s=100)  # stats[0] = return, stats[1] = risk
-            plt.text(stats[1], stats[0], name, fontsize=10)
-
-        plt.title("Risk vs. Return")
+        sns.scatterplot(x=volatilities, y=returns, s=100, color='red')
+        for stock in self.stock_symbols:
+            plt.text(volatilities[stock], returns[stock], stock, fontsize=10)
+        plt.title("Risk vs Return")
         plt.xlabel("Volatility (Risk)")
         plt.ylabel("Annualized Return")
+        plt.grid()
+        plt.show()
+
+    def compare_with_benchmark(self, benchmark_symbol):
+        """
+        Compare the portfolio's cumulative returns with a benchmark.
+
+        Parameters:
+        benchmark_symbol (str): Stock symbol for the benchmark (e.g., 'SPY').
+        """
+        benchmark_data = fetch_data(benchmark_symbol, self.start_date, self.end_date)['Close'].pct_change()
+        portfolio_weighted_returns = self.returns.dot(list(self.weights.values()))
+        portfolio_cumulative = (1 + portfolio_weighted_returns).cumprod()
+        benchmark_cumulative = (1 + benchmark_data).cumprod()
+
+        plt.figure(figsize=(10, 6))
+        plt.plot(portfolio_cumulative.index, portfolio_cumulative, label='Portfolio', color='blue')
+        plt.plot(benchmark_cumulative.index, benchmark_cumulative, label=benchmark_symbol, color='green')
+        plt.title("Portfolio vs Benchmark Performance")
+        plt.xlabel("Date")
+        plt.ylabel("Cumulative Returns")
         plt.legend()
         plt.grid()
         plt.show()
