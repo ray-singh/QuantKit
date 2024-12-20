@@ -2,6 +2,9 @@
 import pandas as pd
 import numpy as np
 from data_fetching import fetch_data, fetch_company_info, fetch_live_price
+from typing import List, Dict
+import seaborn as sns
+import matplotlib.pyplot as plt
 
 
 class Portfolio:
@@ -124,3 +127,66 @@ class Portfolio:
         float: The current stock price.
         """
         return fetch_live_price(stock_symbol)
+
+    def plot_portfolio_performance(self):
+        """
+        Plots the cumulative returns of the portfolio over time.
+        """
+        plt.figure(figsize=(10, 6))
+        cumulative_returns = (1 + self.portfolio_data.pct_change()).cumprod()
+        plt.plot(cumulative_returns.index, cumulative_returns.sum(axis=1), label='Portfolio Cumulative Returns',
+                 color='blue')
+        plt.title("Portfolio Performance Over Time")
+        plt.xlabel("Date")
+        plt.ylabel("Cumulative Returns")
+        plt.legend()
+        plt.grid()
+        plt.show()
+
+    def plot_stock_allocation(self, weights: List[float]):
+        """
+        Plots a pie chart showing stock allocation in the portfolio.
+
+        Args:
+            weights (List[float]): List of weights for each stock in the portfolio.
+        """
+        plt.figure(figsize=(8, 8))
+        labels = self.tickers
+        plt.pie(weights, labels=labels, autopct='%1.1f%%', startangle=140, colors=sns.color_palette('pastel'))
+        plt.title("Portfolio Stock Allocation")
+        plt.show()
+
+    def compare_portfolio_returns(self, portfolio_returns: Dict[str, float]):
+        """
+        Plots a bar chart comparing the returns of multiple portfolios.
+
+        Args:
+            portfolio_returns (Dict[str, float]): Dictionary of portfolio names and their annualized returns.
+        """
+        plt.figure(figsize=(10, 6))
+        names = list(portfolio_returns.keys())
+        returns = list(portfolio_returns.values())
+        sns.barplot(x=names, y=returns, palette="viridis")
+        plt.title("Comparative Portfolio Returns")
+        plt.ylabel("Annualized Return")
+        plt.xlabel("Portfolio")
+        plt.show()
+
+    def plot_risk_vs_return(self, portfolio_stats: Dict[str, tuple]):
+        """
+        Plots a scatter plot comparing risk (volatility) and return across portfolios or stocks.
+
+        Args:
+            portfolio_stats (Dict[str, tuple]): Dictionary of portfolio/stock names with (return, risk) values.
+        """
+        plt.figure(figsize=(10, 6))
+        for name, stats in portfolio_stats.items():
+            plt.scatter(stats[1], stats[0], label=name, s=100)  # stats[0] = return, stats[1] = risk
+            plt.text(stats[1], stats[0], name, fontsize=10)
+
+        plt.title("Risk vs. Return")
+        plt.xlabel("Volatility (Risk)")
+        plt.ylabel("Annualized Return")
+        plt.legend()
+        plt.grid()
+        plt.show()
