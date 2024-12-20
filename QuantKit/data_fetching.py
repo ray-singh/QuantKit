@@ -1,9 +1,18 @@
+import os
+from dotenv import load_dotenv
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
 import requests
 
-ALPHA_VANTAGE_API_KEY = 'RBO630UAW5YGHXRE'
+# Load environment variables from .env file
+load_dotenv()
+
+# Fetch API key from environment
+ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
+
+if not ALPHA_VANTAGE_API_KEY:
+    raise ValueError("API key not found. Please set the ALPHA_VANTAGE_API_KEY environment variable.")
 
 def fetch_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
     """

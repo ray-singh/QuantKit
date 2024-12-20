@@ -7,3 +7,4 @@ scipy
 datetime
 requests
 seaborn
+python-dotenv
