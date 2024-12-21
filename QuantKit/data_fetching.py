@@ -136,37 +136,6 @@ def fetch_financials(ticker: str) -> dict:
         print(f"Error fetching financials: {e}")
         return {}
 
-
-def fetch_forex_data(from_currency: str, to_currency: str) -> dict:
-    """
-    Fetch foreign exchange (forex) data from Alpha Vantage API.
-
-    Args:
-        from_currency (str): Currency to convert from (e.g., 'USD').
-        to_currency (str): Currency to convert to (e.g., 'EUR').
-
-    Returns:
-        dict: Dictionary containing forex data, including the exchange rate.
-    """
-    url = f"https://www.alphavantage.co/query"
-    params = {
-        'function': 'CURRENCY_EXCHANGE_RATE',
-        'from_currency': from_currency,
-        'to_currency': to_currency,
-        'apikey': ALPHA_VANTAGE_API_KEY
-    }
-
-    try:
-        response = requests.get(url, params=params)
-        data = response.json()
-        if 'error' in data:
-            raise ValueError(f"Error fetching forex data for {from_currency} to {to_currency}: {data['error']}")
-        print(f"Fetched forex data: {from_currency} to {to_currency}")
-        return data
-    except Exception as e:
-        print(f"Error fetching forex data: {e}")
-        return {}
-
 def get_stock_values(ticker: str, start_date: str, end_date: str, source: str = "yfinance") -> pd.Series:
     """
     Fetch the time series of stock closing prices.
@@ -181,7 +150,7 @@ def get_stock_values(ticker: str, start_date: str, end_date: str, source: str = 
         pd.Series: Time series of stock closing prices with dates as the index.
     """
     # Fetch data using your existing fetch_data function
-    stock_data = fetch_data(ticker, start_date, end_date, source)
+    stock_data = fetch_data(ticker, start_date, end_date)
 
     # Return only the closing prices as a Series
     if "Close" in stock_data.columns:
