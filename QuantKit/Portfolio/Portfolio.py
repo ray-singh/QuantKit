@@ -1,7 +1,7 @@
 # portfolio.py
 import pandas as pd
 import numpy as np
-from data_fetching import fetch_data, fetch_company_info, fetch_live_price
+from QuantKit.data_fetching import fetch_data, fetch_company_info, fetch_live_price
 from typing import List, Dict
 import seaborn as sns
 import matplotlib.pyplot as plt

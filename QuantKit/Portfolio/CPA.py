@@ -4,6 +4,7 @@ from data_fetching import fetch_data, fetch_company_info
 import numpy as np
 from Portfolio import Portfolio
 
+# comparitive portfolio analysis
 
 def compare_returns(portfolios: List[Portfolio], start_date: str, end_date: str) -> pd.DataFrame:
     """
