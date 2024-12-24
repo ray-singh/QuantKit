@@ -1,8 +1,9 @@
 # portfolio_analysis.py
 import numpy as np
 import pandas as pd
-from Portfolio import Portfolio
-from data_fetching import fetch_data, fetch_company_info, fetch_live_price
+from .Portfolio import Portfolio
+from QuantKit.data_fetching import fetch_data, fetch_company_info, fetch_live_price
+from typing import List, Dict
 
 
 def recommend_stocks_to_sell(self, pe_ratio_threshold: float, div_yield_threshold: float) -> List[Dict]:
