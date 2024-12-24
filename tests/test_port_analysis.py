@@ -46,7 +46,7 @@ class TestPortfolioAnalysis(unittest.TestCase):
 
     def test_calculate_annualized_return(self):
         annual_return = calculate_annualized_return(self.portfolio)
-        self.assertIsInstance(annual_return, float)
+        self.assertIsInstance(annual_return, pd.Series)
         self.assertGreaterEqual(annual_return, -1.0)  # Reasonable range
         self.assertLessEqual(annual_return, 1.0)
 
