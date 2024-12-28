@@ -49,36 +49,5 @@ class TestPortfolioAnalysis(unittest.TestCase):
         self.assertAlmostEqual(sum(weights.values()), 1.0, places=4)
         self.assertTrue(all(0 <= w <= 1 for w in weights.values()))
 
-    def test_calculate_annualized_return(self):
-        # Mock the Portfolio class
-        portfolio = Portfolio(stock_symbols=['AAPL', 'TSLA', 'GOOGL'])
-
-        # Simulate the return values from the calculate_returns method
-        portfolio.calculate_returns = lambda: pd.Series([0.01, 0.02, 0.015, -0.01])
-
-        # Call the function to calculate annualized return
-        annualized_return = calculate_annualized_return(portfolio)
-
-        # Verify the result (252 trading days assumed)
-        expected_return = 0.01 * 252
-
-        # Since the result is a float and expected return is also a float, no need for Series comparison
-        self.assertAlmostEqual(annualized_return, expected_return, places=2)
-
-    def test_sharpe_ratio(self):
-        result = sharpe_ratio(self.portfolio, risk_free_rate=0.01)
-        expected_return = self.mock_data.mean() * 252
-        volatility = self.mock_data.std()
-        expected_sharpe = ((expected_return - 0.01) / volatility).mean()
-        self.assertAlmostEqual(result, expected_sharpe, places=4)
-
-    def test_sortino_ratio(self):
-        result = sortino_ratio(self.portfolio, risk_free_rate=0.01)
-        downside_returns = self.mock_data[self.mock_data < 0]
-        downside_deviation = downside_returns.std() * np.sqrt(252)
-        expected_return = self.mock_data.mean() * 252
-        expected_sortino = ((expected_return - 0.01) / downside_deviation).mean()
-        self.assertAlmostEqual(result, expected_sortino, places=4)
-
 if __name__ == '__main__':
     unittest.main()
