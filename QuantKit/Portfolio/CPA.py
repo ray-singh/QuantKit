@@ -1,8 +1,8 @@
 import pandas as pd
 from typing import List
-from data_fetching import fetch_data, fetch_company_info
+from QuantKit.data_fetching import fetch_data, fetch_company_info
 import numpy as np
-from Portfolio import Portfolio
+from QuantKit.Portfolio.Portfolio import Portfolio
 
 # comparitive portfolio analysis
 
@@ -102,28 +102,3 @@ def compare_compositions(portfolios: List[Portfolio]) -> pd.DataFrame:
                 sector_counts[sector] = sector_counts.get(sector, 0) + 1
         composition_results[portfolio] = sector_counts
     return pd.DataFrame(composition_results).fillna(0)
-
-
-if __name__ == "__main__":
-    portfolio1 = Portfolio(['AAPL', 'MSFT', 'GOOGL'], "2023-01-01", "2023-12-31")
-    portfolio2 = Portfolio(['TSLA', 'AMZN', 'NFLX'], "2023-01-01", "2023-12-31")
-
-    # Compare returns
-    returns = compare_returns([portfolio1, portfolio2], "2023-01-01", "2023-12-31")
-    print("Portfolio Returns Comparison:")
-    print(returns)
-
-    # Compare volatility
-    volatility = compare_volatility([portfolio1, portfolio2], "2023-01-01", "2023-12-31")
-    print("\nPortfolio Volatility Comparison:")
-    print(volatility)
-
-    # Compare Sharpe Ratios
-    sharpe_ratios = compare_sharpe_ratios([portfolio1, portfolio2], "2023-01-01", "2023-12-31")
-    print("\nPortfolio Sharpe Ratios Comparison:")
-    print(sharpe_ratios)
-
-    # Compare composition
-    compositions = compare_compositions([portfolio1, portfolio2])
-    print("\nPortfolio Composition Comparison:")
-    print(compositions)
