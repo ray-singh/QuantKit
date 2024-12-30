@@ -20,6 +20,7 @@ def plot_stock_price(symbol: str,
                      price_color: str = "black",
                      sma_color: str = "blue",
                      ema_color: str = "red"):
+
     # Fetch stock data
     data = yf.download(symbol, start=start_date, end=end_date)
 
@@ -58,173 +59,191 @@ def plot_stock_price(symbol: str,
 
 
 # Function to plot MACD, Signal Line, and Histogram
-def plot_macd(ticker, start_date, end_date):
-    data = yf.download(ticker, start=start_date, end=end_date)
+def plot_macd(symbol: str,
+              start_date: str,
+              end_date: str,
+              title_font_size: int = 16,
+              title_font_color: str = "black",
+              label_font_size: int = 12,
+              label_font_color: str = "gray",
+              grid: bool = True,
+              macd_color: str = "green",
+              signal_color: str = "red",
+              histogram_color: str = "blue"):
+    # Fetch stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
 
-    # Calculate MACD, Signal, and Histogram
-    data['MACD'], data['Signal'], data['Histogram'] = calculate_macd(data)
+    # Calculate MACD
+    macd_data = calculate_macd(data)
 
-    fig = go.Figure()
+    # Create plot
+    plt.figure(figsize=(12, 6))
 
-    # Plot MACD
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['MACD'],
-        mode='lines',
-        name=f'{ticker} MACD',
-        line=dict(color='blue')
-    ))
+    # Plot MACD and Signal Line
+    plt.plot(macd_data.index, macd_data['MACD'], label='MACD', color=macd_color, linewidth=1.5)
+    plt.plot(macd_data.index, macd_data['Signal Line'], label='Signal Line', color=signal_color, linewidth=1.5)
 
-    # Plot Signal Line
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['Signal'],
-        mode='lines',
-        name=f'{ticker} Signal Line',
-        line=dict(color='red')
-    ))
+    # Plot MACD Histogram
+    plt.bar(macd_data.index, macd_data['MACD'] - macd_data['Signal Line'], label='MACD Histogram',
+            color=histogram_color, alpha=0.5)
 
-    # Plot Histogram
-    fig.add_trace(go.Bar(
-        x=data.index,
-        y=data['Histogram'],
-        name=f'{ticker} Histogram',
-        marker=dict(color='gray'),
-        opacity=0.5
-    ))
+    # Title and labels
+    plt.title(f'{symbol} MACD Analysis', fontsize=title_font_size, color=title_font_color)
+    plt.xlabel('Date', fontsize=label_font_size, color=label_font_color)
+    plt.ylabel('Value', fontsize=label_font_size, color=label_font_color)
 
-    fig.update_layout(
-        title=f'{ticker} MACD Analysis',
-        xaxis_title='Date',
-        yaxis_title='MACD Value',
-        template='plotly_dark'
-    )
-    fig.show()
+    # Customize tick labels
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Add grid if 'grid' is set to True
+    if grid:
+        plt.grid(True)
+
+    # Add legend with a custom location
+    plt.legend(loc='upper left', fontsize=12, shadow=True)
+
+    plt.tight_layout()  # Ensure the layout does not get cut off
+    plt.show()
 
 
 # Function to plot Bollinger Bands with stock price
-def plot_bollinger_bands(ticker, start_date, end_date):
-    data = yf.download(ticker, start=start_date, end=end_date)
+def plot_bollinger_bands(symbol: str,
+                         start_date: str,
+                         end_date: str,
+                         window: int = 20,
+                         num_std_dev: int = 2,
+                         title_font_size: int = 16,
+                         title_font_color: str = "black",
+                         label_font_size: int = 12,
+                         label_font_color: str = "gray",
+                         grid: bool = True,
+                         price_color: str = "black",
+                         upper_band_color: str = "green",
+                         lower_band_color: str = "red"):
+    # Fetch stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
 
     # Calculate Bollinger Bands
-    data['UpperBand'], data['LowerBand'] = calculate_bollinger_bands(data)
+    bands = calculate_bollinger_bands(data, window, num_std_dev)
 
-    fig = go.Figure()
+    # Create plot
+    plt.figure(figsize=(12, 6))
 
     # Plot stock price
-    fig.add_trace(go.Candlestick(
-        x=data.index,
-        open=data['Open'],
-        high=data['High'],
-        low=data['Low'],
-        close=data['Close'],
-        name=f'{ticker} Candlesticks'
-    ))
+    plt.plot(data['Close'], label='Stock Price', color=price_color, linewidth=1.5)
 
-    # Plot Upper Bollinger Band
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['UpperBand'],
-        mode='lines',
-        name=f'{ticker} Upper Bollinger Band',
-        line=dict(color='green')
-    ))
+    # Plot Bollinger Bands
+    plt.plot(bands['Upper Band'], label='Upper Band', color=upper_band_color, linestyle='--', linewidth=1.5)
+    plt.plot(bands['Middle Band (SMA)'], label='Middle Band (SMA)', color='blue', linewidth=1.5)
+    plt.plot(bands['Lower Band'], label='Lower Band', color=lower_band_color, linestyle='--', linewidth=1.5)
 
-    # Plot Lower Bollinger Band
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['LowerBand'],
-        mode='lines',
-        name=f'{ticker} Lower Bollinger Band',
-        line=dict(color='red')
-    ))
+    # Title and labels
+    plt.title(f'{symbol} Stock Price with Bollinger Bands', fontsize=title_font_size, color=title_font_color)
+    plt.xlabel('Date', fontsize=label_font_size, color=label_font_color)
+    plt.ylabel('Price', fontsize=label_font_size, color=label_font_color)
 
-    fig.update_layout(
-        title=f'{ticker} Bollinger Bands',
-        xaxis_title='Date',
-        yaxis_title='Price (USD)',
-        template='plotly_dark'
-    )
-    fig.show()
+    # Customize tick labels
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Add grid if 'grid' is set to True
+    if grid:
+        plt.grid(True)
+
+    # Add legend with a custom location
+    plt.legend(loc='upper left', fontsize=12, shadow=True)
+
+    plt.tight_layout()  # Ensure the layout does not get cut off
+    plt.show()
 
 
 # Function to plot RSI with overbought and oversold zones
-def plot_rsi(ticker, start_date, end_date):
-    data = yf.download(ticker, start=start_date, end=end_date)
+def plot_rsi(symbol: str,
+             start_date: str,
+             end_date: str,
+             window: int = 14,
+             title_font_size: int = 16,
+             title_font_color: str = "black",
+             label_font_size: int = 12,
+             label_font_color: str = "gray",
+             grid: bool = True,
+             rsi_color: str = "purple",
+             overbought_color: str = "red",
+             oversold_color: str = "green"):
+    # Fetch stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
 
     # Calculate RSI
-    data['RSI'] = calculate_rsi(data)
+    rsi = calculate_rsi(data, window)
 
-    fig = go.Figure()
+    # Create plot
+    plt.figure(figsize=(12, 6))
 
     # Plot RSI
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['RSI'],
-        mode='lines',
-        name=f'{ticker} RSI',
-        line=dict(color='blue')
-    ))
+    plt.plot(data.index, rsi, label='RSI', color=rsi_color, linewidth=1.5)
 
-    # Plot Overbought zone
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=[70] * len(data),
-        mode='lines',
-        name='Overbought (70)',
-        line=dict(color='red', dash='dash')
-    ))
+    # Plot overbought and oversold levels
+    plt.axhline(y=70, color=overbought_color, linestyle='--', label='Overbought', linewidth=1.2)
+    plt.axhline(y=30, color=oversold_color, linestyle='--', label='Oversold', linewidth=1.2)
 
-    # Plot Oversold zone
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=[30] * len(data),
-        mode='lines',
-        name='Oversold (30)',
-        line=dict(color='green', dash='dash')
-    ))
+    # Title and labels
+    plt.title(f'{symbol} Relative Strength Index (RSI)', fontsize=title_font_size, color=title_font_color)
+    plt.xlabel('Date', fontsize=label_font_size, color=label_font_color)
+    plt.ylabel('RSI', fontsize=label_font_size, color=label_font_color)
 
-    fig.update_layout(
-        title=f'{ticker} RSI',
-        xaxis_title='Date',
-        yaxis_title='RSI Value',
-        template='plotly_dark'
-    )
-    fig.show()
+    # Customize tick labels
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Add grid if 'grid' is set to True
+    if grid:
+        plt.grid(True)
+
+    # Add legend with a custom location
+    plt.legend(loc='upper left', fontsize=12, shadow=True)
+
+    plt.tight_layout()  # Ensure the layout does not get cut off
+    plt.show()
 
 
 # Plot Volume-Price Trend (VPT)
-def plot_vpt(ticker, start_date, end_date):
-    data = yf.download(ticker, start=start_date, end=end_date)
+def plot_vpt(symbol: str,
+             start_date: str,
+             end_date: str,
+             title_font_size: int = 16,
+             title_font_color: str = "black",
+             label_font_size: int = 12,
+             label_font_color: str = "gray",
+             grid: bool = True,
+             vpt_color: str = "blue"):
+    # Fetch stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
 
     # Calculate VPT
-    data['VPT'] = calculate_vpt(data)
+    vpt = calculate_vpt(data)
 
-    fig = go.Figure()
-
-    # Plot stock price
-    fig.add_trace(go.Candlestick(
-        x=data.index,
-        open=data['Open'],
-        high=data['High'],
-        low=data['Low'],
-        close=data['Close'],
-        name=f'{ticker} Candlesticks'
-    ))
+    # Create plot
+    plt.figure(figsize=(12, 6))
 
     # Plot VPT
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['VPT'],
-        mode='lines',
-        name=f'{ticker} VPT',
-        line=dict(color='purple')
-    ))
+    plt.plot(data.index, vpt, label='VPT', color=vpt_color, linewidth=1.5)
 
-    fig.update_layout(
-        title=f'{ticker} Volume-Price Trend (VPT)',
-        xaxis_title='Date',
-        yaxis_title='Price / VPT',
-        template='plotly_dark'
-    )
-    fig.show()
+    # Title and labels
+    plt.title(f'{symbol} Volume-Price Trend (VPT)', fontsize=title_font_size, color=title_font_color)
+    plt.xlabel('Date', fontsize=label_font_size, color=label_font_color)
+    plt.ylabel('VPT', fontsize=label_font_size, color=label_font_color)
+
+    # Customize tick labels
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Add grid if 'grid' is set to True
+    if grid:
+        plt.grid(True)
+
+    # Add legend with a custom location
+    plt.legend(loc='upper left', fontsize=12, shadow=True)
+
+    plt.tight_layout()  # Ensure the layout does not get cut off
+    plt.show()
