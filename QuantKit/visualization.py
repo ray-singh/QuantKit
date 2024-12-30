@@ -1,54 +1,60 @@
 import plotly.graph_objs as go
+import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import yfinance as yf
 from indicators import calculate_sma, calculate_ema, calculate_macd, calculate_bollinger_bands, calculate_rsi
 
 
 # Function to plot historical stock price with SMA and EMA overlays
-def plot_stock_price(ticker, start_date, end_date):
-    data = yf.download(ticker, start=start_date, end=end_date)
+def plot_stock_price(symbol: str,
+                     start_date: str,
+                     end_date: str,
+                     sma_window: int = 50,
+                     ema_window: int = 200,
+                     title_font_size: int = 16,
+                     title_font_color: str = "black",
+                     label_font_size: int = 12,
+                     label_font_color: str = "gray",
+                     grid: bool = True,
+                     price_color: str = "black",
+                     sma_color: str = "blue",
+                     ema_color: str = "red"):
+    # Fetch stock data
+    data = yf.download(symbol, start=start_date, end=end_date)
 
-    # Calculate SMA and EMA
-    data['SMA'] = calculate_sma(data)
-    data['EMA'] = calculate_ema(data)
+    # Calculate indicators
+    sma = calculate_sma(data, sma_window)
+    ema = calculate_ema(data, ema_window)
 
-    fig = go.Figure()
+    # Create plot
+    plt.figure(figsize=(12, 6))
 
-    # Plot stock price
-    fig.add_trace(go.Candlestick(
-        x=data.index,
-        open=data['Open'],
-        high=data['High'],
-        low=data['Low'],
-        close=data['Close'],
-        name=f'{ticker} Candlesticks'
-    ))
+    # Plot the stock price as a line chart
+    plt.plot(data['Close'], label='Stock Price', color=price_color, linewidth=1.2)
 
-    # Plot Simple Moving Average (SMA)
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['SMA'],
-        mode='lines',
-        name=f'{ticker} SMA',
-        line=dict(color='blue')
-    ))
+    # Plot SMA and EMA overlays
+    plt.plot(sma, label=f'SMA {sma_window}', color=sma_color, linewidth=1.5, linestyle='--')
+    plt.plot(ema, label=f'EMA {ema_window}', color=ema_color, linewidth=1.5, linestyle='-.')
 
-    # Plot Exponential Moving Average (EMA)
-    fig.add_trace(go.Scatter(
-        x=data.index,
-        y=data['EMA'],
-        mode='lines',
-        name=f'{ticker} EMA',
-        line=dict(color='orange')
-    ))
+    # Title and labels
+    plt.title(f'{symbol} Stock Price with SMA and EMA', fontsize=title_font_size, color=title_font_color)
+    plt.xlabel('Date', fontsize=label_font_size, color=label_font_color)
+    plt.ylabel('Price', fontsize=label_font_size, color=label_font_color)
 
-    fig.update_layout(
-        title=f'{ticker} Price with SMA and EMA',
-        xaxis_title='Date',
-        yaxis_title='Price (USD)',
-        template='plotly_dark'
-    )
-    fig.show()
+    # Customize tick labels
+    plt.xticks(rotation=45, ha='right', fontsize=10)
+    plt.yticks(fontsize=10)
+
+    # Add legend with a custom location
+    plt.legend(loc='upper left', fontsize=12, shadow=True)
+
+    # Include grid if 'grid' is set to True
+    if grid:
+        plt.grid()
+
+    plt.tight_layout()  # Ensure the layout does not get cut off
+    plt.show()
 
 
 # Function to plot MACD, Signal Line, and Histogram
