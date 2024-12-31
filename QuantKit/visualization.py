@@ -248,5 +248,3 @@ def plot_vpt(symbol: str,
 
     plt.tight_layout()  # Ensure the layout does not get cut off
     plt.show()
-
-

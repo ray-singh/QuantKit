@@ -1,11 +1,8 @@
 import unittest
-import numpy as np
 import pandas as pd
-from QuantKit.Portfolio.Portfolio import Portfolio
-from QuantKit.Portfolio.portfolio_analysis import (recommend_stocks_to_sell,
-                                                   optimize_portfolio,
-                                                   calculate_annualized_return,
-                                                   sharpe_ratio, sortino_ratio)
+from QuantKit.Portfolio import Portfolio
+from QuantKit.portfolio_analysis import (recommend_stocks_to_sell,
+                                         optimize_portfolio)
 
 class TestPortfolioAnalysis(unittest.TestCase):
 

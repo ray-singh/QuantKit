@@ -1,7 +1,6 @@
 import unittest
 import pandas as pd
-import numpy as np
-from QuantKit.Portfolio.Portfolio import Portfolio
+from QuantKit.Portfolio import Portfolio
 
 class TestPortfolio(unittest.TestCase):
 

@@ -1,8 +1,7 @@
 import pandas as pd
 from typing import List
 from QuantKit.data_fetching import fetch_data, fetch_company_info
-import numpy as np
-from QuantKit.Portfolio.Portfolio import Portfolio
+from QuantKit.Portfolio import Portfolio
 
 # comparitive portfolio analysis
 

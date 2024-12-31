@@ -1,5 +1,5 @@
-from QuantKit.Portfolio.Portfolio import Portfolio
-from QuantKit.Portfolio.portfolio_analysis import *
+from QuantKit.Portfolio import Portfolio
+from QuantKit.portfolio_analysis import *
 
 #--------------------Example Use Cases-----------------------------#
 

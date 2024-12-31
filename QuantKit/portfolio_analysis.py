@@ -1,8 +1,8 @@
 # portfolio_analysis.py
 import numpy as np
 import pandas as pd
-from QuantKit.Portfolio.Portfolio import Portfolio
-from QuantKit.data_fetching import fetch_data, fetch_company_info, fetch_live_price
+from QuantKit.Portfolio import Portfolio
+from QuantKit.data_fetching import fetch_company_info
 from typing import List, Dict
 
 
