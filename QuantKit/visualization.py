@@ -70,11 +70,12 @@ def plot_macd(symbol: str,
               macd_color: str = "green",
               signal_color: str = "red",
               histogram_color: str = "blue"):
+
     # Fetch stock data
     data = yf.download(symbol, start=start_date, end=end_date)
 
     # Calculate MACD
-    macd_data = calculate_macd(data)
+    macd_data = calculate_macd(data, ticker=symbol)
 
     # Create plot
     plt.figure(figsize=(12, 6))
@@ -125,7 +126,7 @@ def plot_bollinger_bands(symbol: str,
     data = yf.download(symbol, start=start_date, end=end_date)
 
     # Calculate Bollinger Bands
-    bands = calculate_bollinger_bands(data, window, num_std_dev)
+    bands = calculate_bollinger_bands(data, ticker=symbol, window=window, num_std_dev=num_std_dev)
 
     # Create plot
     plt.figure(figsize=(12, 6))
@@ -247,3 +248,32 @@ def plot_vpt(symbol: str,
 
     plt.tight_layout()  # Ensure the layout does not get cut off
     plt.show()
+
+
+plot_rsi(
+    symbol="MSFT",
+    start_date="2023-01-01",
+    end_date="2023-12-31",
+    window=14,
+    title_font_size=16,
+    title_font_color="purple",
+    label_font_size=12,
+    label_font_color="gray",
+    grid=True,
+    rsi_color="blue",
+    overbought_color="red",
+    oversold_color="green"
+)
+
+plot_vpt(
+    symbol="AMZN",
+    start_date="2023-01-01",
+    end_date="2023-12-31",
+    title_font_size=16,
+    title_font_color="navy",
+    label_font_size=12,
+    label_font_color="gray",
+    grid=True,
+    vpt_color="blue"
+)
+

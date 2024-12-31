@@ -58,13 +58,17 @@ def calculate_rsi(data: pd.DataFrame, window: int) -> pd.Series:
 
 
 # Calculate Moving Average Convergence Divergence (MACD)
-def calculate_macd(data: pd.DataFrame, short_window: int = 12, long_window: int = 26,
+def calculate_macd(data: pd.DataFrame,
+                   ticker: str,  # Specify the ticker
+                   short_window: int = 12,
+                   long_window: int = 26,
                    signal_window: int = 9) -> pd.DataFrame:
     """
     Calculate the Moving Average Convergence Divergence (MACD) and its Signal line.
 
     Args:
-        data (pd.DataFrame): Stock data with a 'Close' column.
+        data (pd.DataFrame): Stock data with MultiIndex columns.
+        ticker (str): Ticker symbol to calculate MACD for.
         short_window (int): The period for the short-term EMA.
         long_window (int): The period for the long-term EMA.
         signal_window (int): The period for the Signal line (EMA of MACD).
@@ -72,36 +76,54 @@ def calculate_macd(data: pd.DataFrame, short_window: int = 12, long_window: int 
     Returns:
         pd.DataFrame: A DataFrame containing MACD and Signal line.
     """
-    short_ema = calculate_ema(data, short_window)
-    long_ema = calculate_ema(data, long_window)
+    # Access the 'Close' prices for the specific ticker
+    close_prices = data[('Close', ticker)]
 
+    # Calculate EMAs
+    short_ema = close_prices.ewm(span=short_window, adjust=False).mean()
+    long_ema = close_prices.ewm(span=long_window, adjust=False).mean()
+
+    # Calculate MACD and Signal Line
     macd = short_ema - long_ema
-    signal_line = calculate_ema(pd.DataFrame(macd), signal_window)
+    signal_line = macd.ewm(span=signal_window, adjust=False).mean()
 
-    return pd.DataFrame({'MACD': macd, 'Signal Line': signal_line})
+    # Return as DataFrame
+    return pd.DataFrame({'MACD': macd, 'Signal Line': signal_line}, index=data.index)
 
 
 # Calculate Bollinger Bands
-def calculate_bollinger_bands(data: pd.DataFrame, window: int = 20, num_std_dev: int = 2) -> pd.DataFrame:
+def calculate_bollinger_bands(data: pd.DataFrame,
+                              ticker: str,
+                              window: int = 20,
+                              num_std_dev: int = 2) -> pd.DataFrame:
     """
     Calculate Bollinger Bands.
 
     Args:
-        data (pd.DataFrame): Stock data with a 'Close' column.
-        window (int): The period over which to calculate the moving average.
-        num_std_dev (int): The number of standard deviations for the upper and lower bands.
+        data (pd.DataFrame): Stock data with MultiIndex columns.
+        ticker (str): Ticker symbol to calculate Bollinger Bands for.
+        window (int): Moving average window size.
+        num_std_dev (int): Number of standard deviations for bands.
 
     Returns:
-        pd.DataFrame: A DataFrame containing the Upper, Middle (SMA), and Lower bands.
+        pd.DataFrame: Upper, Middle (SMA), and Lower bands.
     """
-    sma = calculate_sma(data, window)
-    rolling_std = data['Close'].rolling(window=window).std()
+    # Extract 'Close' prices for the specific ticker
+    close_prices = data[('Close', ticker)]
 
+    # Calculate SMA and rolling standard deviation
+    sma = close_prices.rolling(window=window).mean()
+    rolling_std = close_prices.rolling(window=window).std()
+
+    # Calculate Bollinger Bands
     upper_band = sma + (rolling_std * num_std_dev)
     lower_band = sma - (rolling_std * num_std_dev)
 
-    return pd.DataFrame({'Upper Band': upper_band, 'Middle Band (SMA)': sma, 'Lower Band': lower_band})
-
+    # Return DataFrame with index explicitly set
+    return pd.DataFrame({'Upper Band': upper_band,
+                         'Middle Band (SMA)': sma,
+                         'Lower Band': lower_band},
+                         index=close_prices.index)
 
 # Calculate On-Balance Volume (OBV)
 def calculate_obv(data: pd.DataFrame) -> pd.Series:
