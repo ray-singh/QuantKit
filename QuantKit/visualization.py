@@ -3,7 +3,7 @@ import matplotlib
 matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import yfinance as yf
-from indicators import calculate_sma, calculate_ema, calculate_macd, calculate_bollinger_bands, calculate_rsi
+from indicators import calculate_sma, calculate_ema, calculate_macd, calculate_bollinger_bands, calculate_rsi, calculate_vpt
 
 
 # Function to plot historical stock price with SMA and EMA overlays
@@ -249,31 +249,4 @@ def plot_vpt(symbol: str,
     plt.tight_layout()  # Ensure the layout does not get cut off
     plt.show()
 
-
-plot_rsi(
-    symbol="MSFT",
-    start_date="2023-01-01",
-    end_date="2023-12-31",
-    window=14,
-    title_font_size=16,
-    title_font_color="purple",
-    label_font_size=12,
-    label_font_color="gray",
-    grid=True,
-    rsi_color="blue",
-    overbought_color="red",
-    oversold_color="green"
-)
-
-plot_vpt(
-    symbol="AMZN",
-    start_date="2023-01-01",
-    end_date="2023-12-31",
-    title_font_size=16,
-    title_font_color="navy",
-    label_font_size=12,
-    label_font_color="gray",
-    grid=True,
-    vpt_color="blue"
-)
 
