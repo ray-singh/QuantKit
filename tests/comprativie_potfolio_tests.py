@@ -1,5 +1,4 @@
-from QuantKit.Portfolio import Portfolio
-from QuantKit.CPA import *
+from QuantKit.Portfolio import *
 import pytest
 from unittest.mock import MagicMock
 

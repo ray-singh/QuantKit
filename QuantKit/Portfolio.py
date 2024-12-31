@@ -206,3 +206,226 @@ class Portfolio:
         plt.legend()
         plt.grid()
         plt.show()
+
+#--------------------------------- Methods for portfolio analyses -----------------------------------------#
+
+def recommend_stocks_to_sell(self, pe_ratio_threshold: float, div_yield_threshold: float) -> List[Dict]:
+    """
+    Identify underperforming stocks in the portfolio that should be sold off.
+
+    Args:
+        pe_ratio_threshold (float): Maximum acceptable P/E ratio.
+        div_yield_threshold (float): Minimum acceptable dividend yield.
+
+    Returns:
+        List[Dict]: List of dictionaries containing underperforming stock information.
+    """
+    underperforming_stocks = []
+
+    for ticker in self.stock_symbols:
+        info = fetch_company_info(ticker)
+        if not info:
+            continue  # Skip if unable to fetch info
+
+        pe_ratio = info.get("trailingPE", None)
+        div_yield = info.get("dividendYield", None)
+
+        # Normalize dividend yield percentage if available
+        div_yield = div_yield * 100 if div_yield is not None else None
+
+        # Check if the stock is underperforming
+        if (pe_ratio and pe_ratio > pe_ratio_threshold) or (div_yield and div_yield < div_yield_threshold):
+            underperforming_stocks.append({
+                "Ticker": ticker,
+                "Name": info.get("Name", "N/A"),
+                "P/E Ratio": pe_ratio,
+                "Dividend Yield (%)": div_yield,
+                "Sector": info.get("Sector", "N/A"),
+                "Industry": info.get("Industry", "N/A")
+            })
+    return underperforming_stocks
+
+def optimize_portfolio(data, method='sharpe'):
+    """
+    Optimize the portfolio using mean-variance optimization.
+
+    Parameters:
+    method (str, optional): The optimization method. 'sharpe' for maximizing the Sharpe ratio (default), or 'volatility' for minimizing volatility.
+
+    Returns:
+    dict: A dictionary of optimized portfolio weights.
+    """
+    from scipy.optimize import minimize
+
+    num_assets = len(data.stocks)
+    initial_weights = np.ones(num_assets) / num_assets  # Initial equal weights
+    constraints = ({'type': 'eq', 'fun': lambda weights: np.sum(weights) - 1})
+    bounds = tuple((0, 1) for _ in range(num_assets))  # No short selling
+
+    def objective(weights):
+        weighted_returns = data.returns.dot(weights)
+        if method == 'sharpe':
+            excess_returns = weighted_returns.mean() - 0.01  # Default risk-free rate
+            return -excess_returns / weighted_returns.std()  # Minimize negative Sharpe ratio
+        elif method == 'volatility':
+            return np.sqrt(np.dot(weights.T, np.dot(data.returns.cov() * 252, weights)))  # Minimize volatility
+
+    result = minimize(objective, initial_weights, method='SLSQP', bounds=bounds, constraints=constraints)
+    optimized_weights = result.x
+    return dict(zip(data.stocks.keys(), optimized_weights))
+
+
+def calculate_annualized_return(portfolio: Portfolio) -> pd.Series:
+    """
+    Calculate the annualized return of the portfolio.
+
+    Args:
+        portfolio (Portfolio): An instance of the Portfolio class.
+
+    Returns:
+        pd.Series: Annualized return of the portfolio.
+    """
+    daily_returns = portfolio.calculate_returns()
+    annualized_return = daily_returns.mean() * 252  # Assume 252 trading days in a year
+    return annualized_return
+
+
+def sharpe_ratio(portfolio: Portfolio, risk_free_rate=0.01) -> float:
+    """
+    Calculate the Sharpe Ratio for the portfolio, which measures risk-adjusted return.
+
+    Args:
+        portfolio (Portfolio): An instance of the Portfolio class.
+        risk_free_rate (float): Risk-free rate for comparison (default is 1%).
+
+    Returns:
+        float: Sharpe Ratio for the portfolio.
+    """
+    daily_returns = portfolio.calculate_returns()
+    annualized_return = calculate_annualized_return(portfolio)
+    volatility = portfolio.calculate_volatility()
+
+    # Sharpe Ratio formula: (mean return - risk-free rate) / volatility
+    sharpe_ratio = (annualized_return - risk_free_rate) / volatility
+    return sharpe_ratio
+
+
+def sortino_ratio(portfolio: Portfolio, risk_free_rate=0.01) -> float:
+    """
+    Calculate the Sortino Ratio for the portfolio, which focuses on downside risk.
+
+    Args:
+        portfolio (Portfolio): An instance of the Portfolio class.
+        risk_free_rate (float): Risk-free rate for comparison (default is 1%).
+
+    Returns:
+        float: Sortino Ratio for the portfolio.
+    """
+    daily_returns = portfolio.calculate_returns()
+    downside_returns = daily_returns[daily_returns < 0]
+    annualized_return = calculate_annualized_return(portfolio)
+
+    # Calculate downside deviation (standard deviation of negative returns)
+    downside_deviation = downside_returns.std() * np.sqrt(252)
+
+    # Sortino Ratio formula: (mean return - risk-free rate) / downside deviation
+    sortino_ratio = (annualized_return - risk_free_rate) / downside_deviation
+    return sortino_ratio
+
+#--------------------------------- Methods for comparative portfolio analyses -----------------------------------------#
+def compare_returns(portfolios: List[Portfolio], start_date: str, end_date: str) -> pd.DataFrame:
+    """
+    Compare cumulative returns of multiple portfolios over a specific time period.
+
+    Args:
+        portfolios (List[Portfolio]): List of Portfolio objects.
+        start_date (str): Start date for analysis (YYYY-MM-DD).
+        end_date (str): End date for analysis (YYYY-MM-DD).
+
+    Returns:
+        pd.DataFrame: DataFrame with cumulative returns for each portfolio.
+    """
+    results = {}
+    for portfolio in portfolios:
+        cumulative_return = 0
+        for ticker in portfolio.stock_symbols:
+            data = fetch_data(ticker, start_date, end_date)
+            if not data.empty:
+                daily_returns = data['Close'].pct_change().dropna()
+                cumulative_return += daily_returns.add(1).prod() - 1
+        results[portfolio] = cumulative_return
+    return pd.DataFrame(results.items(), columns=["Portfolio", "Cumulative Return"])
+
+
+def compare_volatility(portfolios: List[Portfolio], start_date: str, end_date: str) -> pd.DataFrame:
+    """
+    Compare the volatility (standard deviation of returns) of multiple portfolios.
+
+    Args:
+        portfolios (List[Portfolio]): List of Portfolio objects.
+        start_date (str): Start date for analysis (YYYY-MM-DD).
+        end_date (str): End date for analysis (YYYY-MM-DD).
+
+    Returns:
+        pd.DataFrame: DataFrame with volatilities for each portfolio.
+    """
+    results = {}
+    for portfolio in portfolios:
+        total_volatility = 0
+        for ticker in portfolio.stock_symbols:
+            data = fetch_data(ticker, start_date, end_date)
+            if not data.empty:
+                daily_returns = data['Close'].pct_change().dropna()
+                total_volatility += daily_returns.std()
+        results[portfolio] = total_volatility
+    return pd.DataFrame(results.items(), columns=["Portfolio", "Volatility"])
+
+
+def compare_sharpe_ratios(portfolios: List[Portfolio], start_date: str, end_date: str, risk_free_rate=0.01) -> pd.DataFrame:
+    """
+    Compare Sharpe ratios of multiple portfolios.
+
+    Args:
+        portfolios (List[Portfolio]): List of Portfolio objects.
+        start_date (str): Start date for analysis (YYYY-MM-DD).
+        end_date (str): End date for analysis (YYYY-MM-DD).
+        risk_free_rate (float): Risk-free rate (default 0.01).
+
+    Returns:
+        pd.DataFrame: DataFrame with Sharpe ratios for each portfolio.
+    """
+    results = {}
+    for portfolio in portfolios:
+        portfolio_return = 0
+        portfolio_volatility = 0
+        for ticker in portfolio.stock_symbols:
+            data = fetch_data(ticker, start_date, end_date)
+            if not data.empty:
+                daily_returns = data['Close'].pct_change().dropna()
+                portfolio_return += daily_returns.mean()
+                portfolio_volatility += daily_returns.std()
+        sharpe_ratio = (portfolio_return - risk_free_rate) / portfolio_volatility if portfolio_volatility else 0
+        results[portfolio] = sharpe_ratio
+    return pd.DataFrame(results.items(), columns=["Portfolio", "Sharpe Ratio"])
+
+
+def compare_compositions(portfolios: List[Portfolio]) -> pd.DataFrame:
+    """
+    Compare the composition (sector/industry distribution) of multiple portfolios.
+
+    Args:
+        portfolios (List[Portfolio]): List of Portfolio objects.
+
+    Returns:
+        pd.DataFrame: DataFrame showing sector/industry allocation for each portfolio.
+    """
+    composition_results = {}
+    for portfolio in portfolios:
+        sector_counts = {}
+        for ticker in portfolio.stock_symbols:
+            info = fetch_company_info(ticker)
+            if info:
+                sector = info.get("Sector", "Unknown")
+                sector_counts[sector] = sector_counts.get(sector, 0) + 1
+        composition_results[portfolio] = sector_counts
+    return pd.DataFrame(composition_results).fillna(0)
