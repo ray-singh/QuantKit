@@ -1,8 +1,6 @@
 import unittest
 import pandas as pd
-from QuantKit.Portfolio import Portfolio
-from QuantKit.portfolio_analysis import (recommend_stocks_to_sell,
-                                         optimize_portfolio)
+from QuantKit.Portfolio import *
 
 class TestPortfolioAnalysis(unittest.TestCase):
 
