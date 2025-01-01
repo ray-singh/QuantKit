@@ -5,15 +5,6 @@ import pandas as pd
 from datetime import datetime
 import requests
 
-# Load environment variables from .env file
-load_dotenv()
-
-# Fetch API key from environment
-ALPHA_VANTAGE_API_KEY = os.getenv('ALPHA_VANTAGE_API_KEY')
-
-if not ALPHA_VANTAGE_API_KEY:
-    raise ValueError("API key not found. Please set the ALPHA_VANTAGE_API_KEY environment variable.")
-
 def fetch_data(ticker: str, start_date: str, end_date: str) -> pd.DataFrame:
     """
     Fetch historical OHLCV data for a given stock ticker.
@@ -110,7 +101,7 @@ def fetch_multiple_tickers_data(tickers: list, start_date: str, end_date: str) -
 
 def fetch_financials(ticker: str) -> dict:
     """
-    Fetch financial data like income statement, balance sheet, and cash flow from Alpha Vantage API.
+    Fetch financial data like income statement, balance sheet, and cash flow using yfinance.
 
     Args:
         ticker (str): Stock ticker symbol.
@@ -118,20 +109,15 @@ def fetch_financials(ticker: str) -> dict:
     Returns:
         dict: Dictionary containing financial data (income statement, balance sheet, etc.).
     """
-    url = f"https://www.alphavantage.co/query"
-    params = {
-        'function': 'INCOME_STATEMENT',
-        'symbol': ticker,
-        'apikey': ALPHA_VANTAGE_API_KEY
-    }
-
     try:
-        response = requests.get(url, params=params)
-        data = response.json()
-        if 'error' in data:
-            raise ValueError(f"Error fetching financial data for {ticker}: {data['error']}")
+        stock = yf.Ticker(ticker)
+        financials = {
+            'income_statement': stock.financials,
+            'balance_sheet': stock.balance_sheet,
+            'cash_flow': stock.cashflow,
+        }
         print(f"Fetched financial data for {ticker}")
-        return data
+        return financials
     except Exception as e:
         print(f"Error fetching financials: {e}")
         return {}
@@ -176,23 +162,3 @@ def get_daily_returns(stock_values: pd.Series) -> pd.Series:
     daily_returns = stock_values.pct_change().dropna()
 
     return daily_returns
-
-if __name__ == "__main__":
-    # Example usage
-    print("----- Fetch Historical Data -----")
-    historical_data = fetch_data("AAPL", "2024-01-01", "2024-06-01")
-    print(historical_data.head())
-
-    print("\n----- Fetch Company Info -----")
-    company_info = fetch_company_info("AAPL")
-    print(company_info)
-
-    print("\n----- Fetch Live Price -----")
-    live_price = fetch_live_price("AAPL")
-    print(f"Live Price: ${live_price:.2f}")
-
-    print("\n----- Fetch Multiple Tickers Data -----")
-    multiple_data = fetch_multiple_tickers_data(["AAPL", "MSFT"], "2024-01-01", "2024-06-01")
-    for ticker, data in multiple_data.items():
-        print(f"{ticker} Data:")
-        print(data.head())
