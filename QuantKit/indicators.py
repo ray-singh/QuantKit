@@ -77,7 +77,7 @@ def calculate_macd(data: pd.DataFrame,
         pd.DataFrame: A DataFrame containing MACD and Signal line.
     """
     # Access the 'Close' prices for the specific ticker
-    close_prices = data[('Close', ticker)]
+    close_prices = data['Close']
 
     # Calculate EMAs
     short_ema = close_prices.ewm(span=short_window, adjust=False).mean()
@@ -109,7 +109,7 @@ def calculate_bollinger_bands(data: pd.DataFrame,
         pd.DataFrame: Upper, Middle (SMA), and Lower bands.
     """
     # Extract 'Close' prices for the specific ticker
-    close_prices = data[('Close', ticker)]
+    close_prices = data['Close']
 
     # Calculate SMA and rolling standard deviation
     sma = close_prices.rolling(window=window).mean()
