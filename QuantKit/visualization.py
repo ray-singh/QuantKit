@@ -4,6 +4,7 @@ matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import yfinance as yf
 from indicators import calculate_sma, calculate_ema, calculate_macd, calculate_bollinger_bands, calculate_rsi, calculate_vpt
+from data_fetching import fetch_data
 
 
 # Function to plot historical stock price with SMA and EMA overlays
@@ -70,9 +71,8 @@ def plot_macd(symbol: str,
               macd_color: str = "green",
               signal_color: str = "red",
               histogram_color: str = "blue"):
-
-    # Fetch stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
+    # Fetch stock data using fetch_data
+    data = fetch_data(symbol, start_date, end_date)  # Replace yf.download() with fetch_data()
 
     # Calculate MACD
     macd_data = calculate_macd(data, ticker=symbol)
@@ -123,7 +123,7 @@ def plot_bollinger_bands(symbol: str,
                          upper_band_color: str = "green",
                          lower_band_color: str = "red"):
     # Fetch stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
+    data = fetch_data(symbol, start_date, end_date)
 
     # Calculate Bollinger Bands
     bands = calculate_bollinger_bands(data, ticker=symbol, window=window, num_std_dev=num_std_dev)
@@ -173,7 +173,7 @@ def plot_rsi(symbol: str,
              overbought_color: str = "red",
              oversold_color: str = "green"):
     # Fetch stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
+    data = fetch_data(symbol, start_date, end_date)
 
     # Calculate RSI
     rsi = calculate_rsi(data, window)
@@ -219,7 +219,7 @@ def plot_vpt(symbol: str,
              grid: bool = True,
              vpt_color: str = "blue"):
     # Fetch stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
+    data = fetch_data(symbol, start_date, end_date)
 
     # Calculate VPT
     vpt = calculate_vpt(data)
