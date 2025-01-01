@@ -23,7 +23,7 @@ def plot_stock_price(symbol: str,
                      ema_color: str = "red"):
 
     # Fetch stock data
-    data = yf.download(symbol, start=start_date, end=end_date)
+    data = fetch_data(symbol, start_date, end_date)
 
     # Calculate indicators
     sma = calculate_sma(data, sma_window)
@@ -72,7 +72,7 @@ def plot_macd(symbol: str,
               signal_color: str = "red",
               histogram_color: str = "blue"):
     # Fetch stock data using fetch_data
-    data = fetch_data(symbol, start_date, end_date)  # Replace yf.download() with fetch_data()
+    data = fetch_data(symbol, start_date, end_date)
 
     # Calculate MACD
     macd_data = calculate_macd(data, ticker=symbol)
