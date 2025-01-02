@@ -1,5 +1,4 @@
 import os
-from dotenv import load_dotenv
 import yfinance as yf
 import pandas as pd
 from datetime import datetime
@@ -122,7 +121,7 @@ def fetch_financials(ticker: str) -> dict:
         print(f"Error fetching financials: {e}")
         return {}
 
-def get_stock_values(ticker: str, start_date: str, end_date: str, source: str = "yfinance") -> pd.Series:
+def get_stock_values(ticker: str, start_date: str, end_date: str) -> pd.Series:
     """
     Fetch the time series of stock closing prices.
 
@@ -137,6 +136,10 @@ def get_stock_values(ticker: str, start_date: str, end_date: str, source: str = 
     """
     # Fetch data using your existing fetch_data function
     stock_data = fetch_data(ticker, start_date, end_date)
+
+    # Check if data is empty or invalid
+    if stock_data is None or stock_data.empty:
+        raise ValueError("No data fetched for the given ticker and date range.")
 
     # Return only the closing prices as a Series
     if "Close" in stock_data.columns:
