@@ -1,6 +1,7 @@
 import os
 import yfinance as yf
 import pandas as pd
+import numpy as np
 from datetime import datetime
 import requests
 
@@ -148,20 +149,28 @@ def get_stock_values(ticker: str, start_date: str, end_date: str) -> pd.Series:
         raise KeyError("'Close' column not found in the stock data.")
 
 
-def get_daily_returns(stock_values: pd.Series) -> pd.Series:
+def calculate_returns(prices: pd.Series, method: str = "simple") -> pd.Series:
     """
-    Calculate the daily returns from a series of stock values.
+    Calculate stock returns based on closing prices.
 
     Args:
-        stock_values (pd.Series): Time series of stock prices with dates as the index.
+        prices (pd.Series): Time series of stock closing prices.
+        method (str): Method to calculate returns ('simple' or 'log'). Defaults to 'simple'.
 
     Returns:
-        pd.Series: Time series of daily returns.
+        pd.Series: Series of calculated returns with dates as the index.
+
+    Raises:
+        ValueError: If the method is invalid or prices are empty.
     """
-    if not isinstance(stock_values, pd.Series):
-        raise ValueError("Input 'stock_values' must be a pandas Series.")
+    if prices.empty:
+        raise ValueError("Input price series is empty.")
 
-    # Calculate daily returns using percentage change
-    daily_returns = stock_values.pct_change().dropna()
+    if method == "simple":
+        returns = prices.pct_change()  # Simple returns
+    elif method == "log":
+        returns = np.log(prices / prices.shift(1))  # Log returns
+    else:
+        raise ValueError("Invalid method. Choose 'simple' or 'log'.")
 
-    return daily_returns
+    return returns.dropna()

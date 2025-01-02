@@ -1,7 +1,7 @@
 # portfolio.py
 import pandas as pd
 import numpy as np
-from QuantKit.data_fetching import fetch_data, fetch_company_info, fetch_live_price
+from QuantKit.data_fetching import fetch_data, fetch_company_info, fetch_live_price, calculate_returns
 from typing import List, Dict
 import seaborn as sns
 import matplotlib.pyplot as plt
@@ -24,7 +24,7 @@ class Portfolio:
         self.end_date = end_date
         self.stocks = self.fetch_stocks_data()
         self.weights = weights if weights else {stock: 1 / len(stock_symbols) for stock in stock_symbols}
-        self.returns = self.calculate_returns()
+        self.returns = self.returns()
 
     def fetch_stocks_data(self):
         """
@@ -40,7 +40,7 @@ class Portfolio:
                 stocks_data[symbol] = data
         return stocks_data
 
-    def calculate_returns(self):
+    def returns(self, method):
         """
         Calculate daily returns for each stock in the portfolio.
 
@@ -49,7 +49,7 @@ class Portfolio:
         """
         returns = pd.DataFrame()
         for stock, data in self.stocks.items():
-            returns[stock] = data['Close'].pct_change().dropna()
+            returns[stock] = calculate_returns(data['Close'], method)
         return returns
 
     def calculate_portfolio_return(self):
@@ -89,7 +89,7 @@ class Portfolio:
             if not data.empty:
                 self.stocks[stock_symbol] = data
                 self.weights[stock_symbol] = weight if weight else 1 / len(self.stocks)
-                self.returns = self.calculate_returns()
+                self.returns = self.returns()
 
     def remove_stock(self, stock_symbol):
         """
@@ -101,7 +101,7 @@ class Portfolio:
         if stock_symbol in self.stocks:
             del self.stocks[stock_symbol]
             del self.weights[stock_symbol]
-            self.returns = self.calculate_returns()
+            self.returns = self.returns()
         else:
             print(f"Stock {stock_symbol} not found in portfolio.")
 
@@ -285,7 +285,7 @@ def calculate_annualized_return(portfolio: Portfolio) -> pd.Series:
     Returns:
         pd.Series: Annualized return of the portfolio.
     """
-    daily_returns = portfolio.calculate_returns()
+    daily_returns = portfolio.returns()
     annualized_return = daily_returns.mean() * 252  # Assume 252 trading days in a year
     return annualized_return
 
@@ -301,7 +301,7 @@ def sharpe_ratio(portfolio: Portfolio, risk_free_rate=0.01) -> float:
     Returns:
         float: Sharpe Ratio for the portfolio.
     """
-    daily_returns = portfolio.calculate_returns()
+    daily_returns = portfolio.returns()
     annualized_return = calculate_annualized_return(portfolio)
     volatility = portfolio.calculate_volatility()
 
@@ -321,7 +321,7 @@ def sortino_ratio(portfolio: Portfolio, risk_free_rate=0.01) -> float:
     Returns:
         float: Sortino Ratio for the portfolio.
     """
-    daily_returns = portfolio.calculate_returns()
+    daily_returns = portfolio.returns()
     downside_returns = daily_returns[daily_returns < 0]
     annualized_return = calculate_annualized_return(portfolio)
 
