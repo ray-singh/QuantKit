@@ -22,6 +22,28 @@ def plot_stock_price(symbol: str,
                      sma_color: str = "blue",
                      ema_color: str = "red"):
 
+    """
+        Plots the stock price along with Simple Moving Average (SMA) and Exponential Moving Average (EMA).
+
+        Parameters:
+            symbol (str): Stock ticker symbol.
+            start_date (str): Start date for fetching stock data (format: 'YYYY-MM-DD').
+            end_date (str): End date for fetching stock data (format: 'YYYY-MM-DD').
+            sma_window (int): Window size for calculating SMA. Default is 50.
+            ema_window (int): Window size for calculating EMA. Default is 200.
+            title_font_size (int): Font size for the plot title. Default is 16.
+            title_font_color (str): Color of the plot title text. Default is 'black'.
+            label_font_size (int): Font size for axis labels. Default is 12.
+            label_font_color (str): Color of axis labels. Default is 'gray'.
+            grid (bool): Whether to display grid lines. Default is True.
+            price_color (str): Line color for stock price. Default is 'black'.
+            sma_color (str): Line color for SMA. Default is 'blue'.
+            ema_color (str): Line color for EMA. Default is 'red'.
+
+        Returns:
+            None
+        """
+
     # Fetch stock data
     data = fetch_data(symbol, start_date, end_date)
 
@@ -71,6 +93,26 @@ def plot_macd(symbol: str,
               macd_color: str = "green",
               signal_color: str = "red",
               histogram_color: str = "blue"):
+    """
+    Plots the MACD (Moving Average Convergence Divergence) along with Signal Line and Histogram.
+
+    Parameters:
+        symbol (str): Stock ticker symbol.
+        start_date (str): Start date for fetching stock data (format: 'YYYY-MM-DD').
+        end_date (str): End date for fetching stock data (format: 'YYYY-MM-DD').
+        title_font_size (int): Font size for the plot title. Default is 16.
+        title_font_color (str): Color of the plot title text. Default is 'black'.
+        label_font_size (int): Font size for axis labels. Default is 12.
+        label_font_color (str): Color of axis labels. Default is 'gray'.
+        grid (bool): Whether to display grid lines. Default is True.
+        macd_color (str): Line color for MACD. Default is 'green'.
+        signal_color (str): Line color for Signal Line. Default is 'red'.
+        histogram_color (str): Color for MACD Histogram. Default is 'blue'.
+
+    Returns:
+        None
+     """
+
     # Fetch stock data using fetch_data
     data = fetch_data(symbol, start_date, end_date)
 
@@ -122,6 +164,28 @@ def plot_bollinger_bands(symbol: str,
                          price_color: str = "black",
                          upper_band_color: str = "green",
                          lower_band_color: str = "red"):
+    """
+    Plots the Bollinger Bands for the given stock symbol within a specified date range.
+
+    Args:
+        symbol (str): Ticker symbol of the stock.
+        start_date (str): Start date for fetching data in 'YYYY-MM-DD' format.
+        end_date (str): End date for fetching data in 'YYYY-MM-DD' format.
+        window (int, optional): Window size for the moving average. Default is 20.
+        num_std_dev (int, optional): Number of standard deviations for the bands. Default is 2.
+        title_font_size (int, optional): Font size for the plot title. Default is 16.
+        title_font_color (str, optional): Font color for the plot title. Default is "black".
+        label_font_size (int, optional): Font size for axis labels. Default is 12.
+        label_font_color (str, optional): Font color for axis labels. Default is "gray".
+        grid (bool, optional): Whether to display grid lines. Default is True.
+        price_color (str, optional): Color of the stock price line. Default is "black".
+        upper_band_color (str, optional): Color of the upper band line. Default is "green".
+        lower_band_color (str, optional): Color of the lower band line. Default is "red".
+
+    Returns:
+        None
+    """
+
     # Fetch stock data
     data = fetch_data(symbol, start_date, end_date)
 
@@ -172,6 +236,27 @@ def plot_rsi(symbol: str,
              rsi_color: str = "purple",
              overbought_color: str = "red",
              oversold_color: str = "green"):
+    """
+    Plots the Relative Strength Index (RSI) for the given stock symbol within a specified date range.
+
+    Args:
+        symbol (str): Ticker symbol of the stock.
+        start_date (str): Start date for fetching data in 'YYYY-MM-DD' format.
+        end_date (str): End date for fetching data in 'YYYY-MM-DD' format.
+        window (int, optional): Window size for RSI calculation. Default is 14.
+        title_font_size (int, optional): Font size for the plot title. Default is 16.
+        title_font_color (str, optional): Font color for the plot title. Default is "black".
+        label_font_size (int, optional): Font size for axis labels. Default is 12.
+        label_font_color (str, optional): Font color for axis labels. Default is "gray".
+        grid (bool, optional): Whether to display grid lines. Default is True.
+        rsi_color (str, optional): Color of the RSI line. Default is "purple".
+        overbought_color (str, optional): Color for overbought level indicator. Default is "red".
+        oversold_color (str, optional): Color for oversold level indicator. Default is "green".
+
+    Returns:
+        None
+    """
+
     # Fetch stock data
     data = fetch_data(symbol, start_date, end_date)
 
@@ -218,6 +303,24 @@ def plot_vpt(symbol: str,
              label_font_color: str = "gray",
              grid: bool = True,
              vpt_color: str = "blue"):
+    """
+    Plots the Volume-Price Trend (VPT) for the given stock symbol within a specified date range.
+
+    Args:
+        symbol (str): Ticker symbol of the stock.
+        start_date (str): Start date for fetching data in 'YYYY-MM-DD' format.
+        end_date (str): End date for fetching data in 'YYYY-MM-DD' format.
+        title_font_size (int, optional): Font size for the plot title. Default is 16.
+        title_font_color (str, optional): Font color for the plot title. Default is "black".
+        label_font_size (int, optional): Font size for axis labels. Default is 12.
+        label_font_color (str, optional): Font color for axis labels. Default is "gray".
+        grid (bool, optional): Whether to display grid lines. Default is True.
+        vpt_color (str, optional): Color of the VPT line. Default is "blue".
+
+    Returns:
+        None
+    """
+
     # Fetch stock data
     data = fetch_data(symbol, start_date, end_date)
 
@@ -246,5 +349,5 @@ def plot_vpt(symbol: str,
     # Add legend with a custom location
     plt.legend(loc='upper left', fontsize=12, shadow=True)
 
-    plt.tight_layout()  # Ensure the layout does not get cut off
+    plt.tight_layout()
     plt.show()
