@@ -1,4 +1,4 @@
-from QuantKit.Portfolio import *
+from Stockify.Portfolio import *
 import pytest
 from unittest.mock import MagicMock
 

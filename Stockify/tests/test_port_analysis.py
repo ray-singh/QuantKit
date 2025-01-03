@@ -1,6 +1,6 @@
 import unittest
 import pandas as pd
-from QuantKit.Portfolio import *
+from Stockify.Portfolio import *
 
 class TestPortfolioAnalysis(unittest.TestCase):
 

@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from QuantKit.risk import value_at_risk, conditional_value_at_risk, maximum_drawdown
+from Stockify.risk import value_at_risk, conditional_value_at_risk, maximum_drawdown
 
 # Sample data for testing
 returns = pd.Series([-0.02, 0.03, -0.04, 0.01, -0.01, 0.02, -0.03, 0.04, -0.02])

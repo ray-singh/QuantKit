@@ -1,7 +1,7 @@
 import pytest
 import pandas as pd
 import numpy as np
-from QuantKit.indicators import (
+from Stockify.indicators import (
     calculate_sma,
     calculate_ema,
     calculate_rsi,

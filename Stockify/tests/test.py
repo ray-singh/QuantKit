@@ -3,7 +3,6 @@ import numpy as np
 import matplotlib
 import matplotlib.pyplot as plt
 import yfinance as yf
-import plotly.express as px
 import requests
 from datetime import datetime
 

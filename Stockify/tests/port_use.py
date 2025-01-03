@@ -1,4 +1,4 @@
-from QuantKit.Portfolio import *
+from Stockify.Portfolio import *
 
 #--------------------Example Use Cases-----------------------------#
 

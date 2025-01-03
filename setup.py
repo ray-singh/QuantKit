@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 
 setup(
-    name="QuantKit",
+    name="Stockify",
     version="0.1.0",
     author="Rayansh Singh",
     author_email="rayansh365@gmail.com",

@@ -1,5 +1,5 @@
 import unittest
-from QuantKit.data_fetching import *
+from Stockify.data_fetching import *
 import pandas as pd
 
 class TestDataFetching(unittest.TestCase):
