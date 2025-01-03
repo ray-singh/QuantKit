@@ -187,3 +187,23 @@ def calculate_vpt(data: pd.DataFrame) -> pd.Series:
     vpt = (price_change * data['Volume']).cumsum()  # Cumulative sum of VPT
     vpt.iloc[0] = 0  # Set initial value to 0
     return vpt
+
+# Compute rolling metrics (e.g., mean, std deviation, etc.)
+def compute_rolling_metrics(data: pd.Series, metric: str = 'mean', window: int = 30) -> pd.Series:
+    """
+    Compute rolling metrics such as mean or standard deviation.
+
+    Args:
+        data (pd.Series): Series of stock prices or returns.
+        metric (str): Metric to compute ('mean' or 'std').
+        window (int): Rolling window size.
+
+    Returns:
+        pd.Series: Rolling metric values.
+    """
+    if metric == 'mean':
+        return data.rolling(window=window).mean()
+    elif metric == 'std':
+        return data.rolling(window=window).std()
+    else:
+        raise ValueError("Invalid metric. Supported metrics: 'mean', 'std'.")
