@@ -1,0 +1,15 @@
+LICENSE
+README.md
+pyproject.toml
+setup.py
+Stockify/Portfolio.py
+Stockify/__init__.py
+Stockify/data_fetching.py
+Stockify/indicators.py
+Stockify/risk.py
+Stockify/visualization.py
+Stockify.egg-info/PKG-INFO
+Stockify.egg-info/SOURCES.txt
+Stockify.egg-info/dependency_links.txt
+Stockify.egg-info/requires.txt
+Stockify.egg-info/top_level.txt

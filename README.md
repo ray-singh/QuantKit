@@ -18,4 +18,4 @@ Stockify is a Python toolkit for financial data analysis and portfolio managemen
 You can install Stockily using **pip**:
 
 ```bash
-pip install stockily
+pip install stockify

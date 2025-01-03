@@ -8,7 +8,7 @@ setup(
     description="A Python library for financial data analysis and portfolio management",
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
-    url="https://github.com/ray-singh/QuantKit",
+    url="https://github.com/ray-singh/Stockify",
     packages=find_packages(exclude=["tests*", "tests.*"]),  # Exclude tests folder
     install_requires=[
         "yfinance",
