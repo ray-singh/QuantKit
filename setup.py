@@ -9,7 +9,7 @@ setup(
     long_description=open("README.md").read(),
     long_description_content_type="text/markdown",
     url="https://github.com/ray-singh/QuantKit",
-    packages=find_packages(),
+    packages=find_packages(exclude=["tests*", "tests.*"]),  # Exclude tests folder
     install_requires=[
         "yfinance",
         "numpy",
