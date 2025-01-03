@@ -4,6 +4,7 @@ import numpy as np
 from Stockify.data_fetching import fetch_data, fetch_company_info, fetch_live_price, calculate_returns
 from typing import List, Dict
 import seaborn as sns
+import matplotlib
 import matplotlib.pyplot as plt
 
 # Auto-detect backend or default to Agg (headless)
