@@ -1,15 +1,10 @@
+import plotly.graph_objs as go
 import matplotlib
+matplotlib.use('TkAgg')
 import matplotlib.pyplot as plt
 import yfinance as yf
 from indicators import calculate_sma, calculate_ema, calculate_macd, calculate_bollinger_bands, calculate_rsi, calculate_vpt
 from data_fetching import fetch_data
-
-# Auto-detect backend or default to Agg (headless)
-try:
-    import IPython
-    matplotlib.use('module://ipykernel.pylab.backend_inline')  # For Jupyter Notebooks
-except ImportError:
-    matplotlib.use('Agg')  # Headless or script environments
 
 
 # Function to plot historical stock price with SMA and EMA overlays

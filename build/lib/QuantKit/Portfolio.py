@@ -5,13 +5,8 @@ from QuantKit.data_fetching import fetch_data, fetch_company_info, fetch_live_pr
 from typing import List, Dict
 import seaborn as sns
 import matplotlib.pyplot as plt
-
-# Auto-detect backend or default to Agg (headless)
-try:
-    import IPython
-    matplotlib.use('module://ipykernel.pylab.backend_inline')  # For Jupyter Notebooks
-except ImportError:
-    matplotlib.use('Agg')  # Headless or script environments
+#import matplotlib
+#matplotlib.use('TkAgg')
 
 class Portfolio:
     def __init__(self, stock_symbols=None, start_date='2020-01-01', end_date='2024-01-01', weights=None):
