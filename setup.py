@@ -2,7 +2,7 @@ from setuptools import setup, find_packages
 
 setup(
     name="Stockify",
-    version="0.1.0",
+    version="0.1.1",
     author="Rayansh Singh",
     author_email="rayansh365@gmail.com",
     description="A Python library for financial data analysis and portfolio management",

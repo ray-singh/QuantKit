@@ -1,6 +1,6 @@
 Metadata-Version: 2.1
 Name: Stockify
-Version: 0.1.0
+Version: 0.1.1
 Summary: A Python library for financial data analysis and portfolio management
 Home-page: https://github.com/ray-singh/Stockify
 Author: Rayansh Singh
@@ -12,15 +12,24 @@ Requires-Python: >=3.7
 Description-Content-Type: text/markdown
 License-File: LICENSE
 
-# QuantKit
+# Stockify
 
-QuantKit is a Python-based financial data analysis toolkit designed to provide user-friendly tools for analyzing stock market data. 
+Stockify is a Python toolkit for financial data analysis and portfolio management. It allows users to easily fetch stock market data, analyze performance, and build custom stock portfolios. Whether you're an investor, data scientist, or student, Stockily aims to make stock analysis more accessible and efficient.
 
-The library integrates data from Yahoo Finance and Alpha Vantage APIs to fetch historical and real-time financial data. It includes a wide range of technical analysis indicators such as Moving Averages, RSI, MACD, OBV, and the Stochastic Oscillator. 
+---
 
-Features to be Added Shortly:
--Portfolio Analytics: Tools for calculating risk metrics, returns, and portfolio optimization.
--Comparative Analysis: Functions to compare the performance of multiple stocks or sectors over various time frames.
--Interactive Visualizations: Integration with libraries like Plotly for dynamic and interactive charting of financial data.
--Machine Learning: Incorporating linear regression and LSTM neural networks for predicting future stock prices.
+## Features
 
+- **Fetch Stock Data**: Retrieve stock data from Yahoo Finance (via `yfinance`) and Alpha Vantage.
+- **Portfolio Management**: Simulate and manage stock portfolios with custom weightings and investment strategies.
+- **Risk Analysis**: Calculate key financial metrics such as volatility, returns, and correlations between stocks in a portfolio.
+- **Easy Integration**: Use Stockily as part of your financial analysis pipeline or as a stand-alone tool.
+
+---
+
+## Installation
+
+You can install Stockily using **pip**:
+
+```bash
+pip install stockify
