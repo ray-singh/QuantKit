@@ -2,7 +2,6 @@ pandas
 numpy
 matplotlib
 yfinance
-plotly
 scipy
 datetime
 requests
